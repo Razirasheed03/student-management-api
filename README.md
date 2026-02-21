@@ -1,107 +1,118 @@
-Student Management System API
+# Student Management System API
 
-The Student Management System API is a role-based backend service for managing students and their assigned tasks. It is built using Express, TypeScript, MongoDB Atlas, and JWT authentication, with Zod-based request validation and centralized error handling.
+A role-based backend API for managing students and their assigned tasks.
 
-Tech Stack
+Built using **Express.js (v5)**, **TypeScript**, **MongoDB Atlas**, **JWT authentication**, and **Zod validation**.  
+The system implements role-based access control (RBAC), centralized error handling, and structured request validation.
 
-Node.js
+---
 
-Express v5
+## Production URL
 
-TypeScript
+**Live API:**  
+https://student-management-api-nn3u.onrender.com
 
-MongoDB Atlas (Mongoose)
+---
 
-JWT Authentication
+## Tech Stack
 
-Zod Validation
+- Node.js  
+- Express v5  
+- TypeScript  
+- MongoDB Atlas (Mongoose)  
+- JWT Authentication  
+- Zod Request Validation  
+- Centralized Error Middleware  
+- Render (Deployment)
 
-tsx (Development Runtime)
+---
 
-Architecture Overview
+## Architecture Overview
 
-The project follows a layered architecture:
+The project follows a clean layered architecture:
 
+```
 routes → middleware → controllers → services → models
+```
 
-Routes: Define endpoints and apply middleware.
+### Layer Responsibilities
 
-Middleware: Handles authentication (JWT), role-based access control (RBAC), validation, and error handling.
+- **Routes**  
+  Define API endpoints and attach middleware.
 
-Controllers: Manage HTTP request/response flow.
+- **Middleware**
+  - JWT authentication
+  - Role-based access control (RBAC)
+  - Zod request validation
+  - Global error handling
 
-Services: Contain business logic.
+- **Controllers**  
+  Handle HTTP request/response flow.
 
-Models: Define MongoDB schemas using Mongoose.
+- **Services**  
+  Contain business logic and data processing.
 
-The system includes:
+- **Models**  
+  Define MongoDB schemas using Mongoose.
 
-Centralized error handling middleware
+---
 
-Role-based route protection
+## Authentication
 
-Zod-based request validation
+JWT-based authentication is used.
 
-Dynamic overdue calculation logic
+After login, include the token in protected routes:
 
-Features
-Admin
-
-Register Admin
-
-Login
-
-Create Student (Admin only)
-
-Assign Task to Student (Admin only)
-
-Student
-
-Login
-
-View assigned tasks
-
-View task status (pending / overdue / completed)
-
-Mark task as completed
-
-API Base URL
-
-Local:
-
-http://localhost:4000
-
-Production:
-
-[Your Deployed URL Here]
-Authentication
-
-All protected routes require:
-
+```
 Authorization: Bearer <JWT_TOKEN>
-Environment Variables
+```
 
-Create a .env file:
+---
 
-PORT=4000
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_secret_key
-API Endpoints
-Authentication
-Register Admin
+# Features
 
-POST /api/auth/register-admin
+## Admin Capabilities
 
-Request:
+- Register Admin
+- Login
+- Create Students
+- Assign Tasks to Students
 
+## Student Capabilities
+
+- Login
+- View assigned tasks
+- See task status:
+  - `pending`
+  - `overdue` (calculated dynamically)
+  - `completed`
+- Mark task as completed
+
+---
+
+# API Endpoints
+
+---
+
+## 🔑 Authentication
+
+### Register Admin
+
+**POST** `/api/auth/register-admin`
+
+#### Request
+
+```json
 {
   "name": "Admin Name",
   "email": "admin@example.com",
   "password": "password123"
 }
+```
 
-Response:
+#### Response
 
+```json
 {
   "success": true,
   "data": {
@@ -111,51 +122,75 @@ Response:
     "role": "admin"
   }
 }
-Login
+```
 
-POST /api/auth/login
+---
 
-Request:
+### Login
 
+**POST** `/api/auth/login`
+
+#### Request
+
+```json
 {
   "email": "admin@example.com",
   "password": "password123"
 }
+```
 
-Response:
+#### Response
 
+```json
 {
   "success": true,
   "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
 }
-Admin Endpoints (Admin Role Required)
-Create Student
+```
 
-POST /api/students
+---
 
-Request:
+## Admin Routes (Admin Role Required)
 
+All routes require:
+
+```
+Authorization: Bearer <ADMIN_TOKEN>
+```
+
+---
+
+### Create Student
+
+**POST** `/api/students`
+
+```json
 {
   "name": "Student Name",
   "email": "student@example.com",
   "password": "password123",
   "department": "Computer Science"
 }
-Assign Task
+```
 
-POST /api/tasks
+---
 
-Request:
+### Assign Task
 
+**POST** `/api/tasks`
+
+```json
 {
   "title": "Build REST API",
   "description": "Complete assignment",
   "dueDate": "2026-02-25",
   "studentId": "64f..."
 }
+```
 
-Response:
+#### Response
 
+```json
 {
   "success": true,
   "data": {
@@ -164,13 +199,25 @@ Response:
     "status": "pending"
   }
 }
-Student Endpoints (Student Role Required)
-Get My Tasks
+```
 
-GET /api/tasks/my
+---
 
-Response:
+## Student Routes (Student Role Required)
 
+All routes require:
+
+```
+Authorization: Bearer <STUDENT_TOKEN>
+```
+
+---
+
+### Get My Tasks
+
+**GET** `/api/tasks/my`
+
+```json
 {
   "success": true,
   "data": [
@@ -182,32 +229,41 @@ Response:
     }
   ]
 }
-Dynamic Overdue Logic
+```
+
+---
+
+### Dynamic Overdue Logic
 
 If:
 
-status !== completed
+- Task is not completed  
+- Current date exceeds `dueDate`
 
-dueDate < current date
+The API automatically returns:
 
-Then API automatically returns:
-
+```json
 "status": "overdue"
+```
 
-(Overdue is not stored in the database — it is computed dynamically.)
+> Overdue is not stored in the database.  
+> It is calculated dynamically during response generation.
 
-Update Task Status
+---
 
-PATCH /api/tasks/:taskId
+### Update Task Status
 
-Request:
+**PATCH** `/api/tasks/:taskId`
 
+```json
 {
   "status": "completed"
 }
+```
 
-Response:
+#### Response
 
+```json
 {
   "success": true,
   "data": {
@@ -215,12 +271,17 @@ Response:
     "status": "completed"
   }
 }
-Validation & Error Handling
+```
 
-The API uses Zod for request validation.
+---
 
-Invalid input example:
+# Validation & Error Handling
 
+The API uses **Zod** for request validation.
+
+Example validation error:
+
+```json
 {
   "success": false,
   "message": "Validation failed",
@@ -231,22 +292,113 @@ Invalid input example:
     }
   ]
 }
+```
 
-All runtime errors are handled by centralized error middleware for consistent JSON responses.
+All runtime errors are handled through a centralized global error middleware to ensure consistent JSON responses.
 
-Setup Instructions
+---
 
-Clone the repository
+# ⚙️ Environment Variables
 
-git clone <repository-url>
+Create a `.env` file:
+
+```
+PORT=4000
+MONGO_URI=your_mongodb_connection_string
+JWT_SECRET=your_secret_key
+```
+
+---
+
+# 💻 Local Setup
+
+### 1️⃣ Clone Repository
+
+```bash
+git clone <your-repository-url>
 cd student-management-api
+```
 
-Install dependencies
+### 2️⃣ Install Dependencies
 
+```bash
 npm install
+```
 
-Configure .env
+### 3️⃣ Configure Environment
 
-Run development server
+Create a `.env` file and add required variables.
 
+### 4️⃣ Run Development Server
+
+```bash
 npm run dev
+```
+
+### 5️⃣ Build for Production
+
+```bash
+npm run build
+npm start
+```
+
+---
+
+# ☁ Deployment
+
+Deployed on **Render**.
+
+**Build Command**
+
+```bash
+npm install && npm run build
+```
+
+**Start Command**
+
+```bash
+npm start
+```
+
+Environment variables are configured in the Render dashboard.
+
+---
+
+# 📂 Project Structure
+
+```
+src/
+ ├── controllers/
+ ├── services/
+ ├── models/
+ ├── routes/
+ ├── middlewares/
+ ├── types/
+ ├── app.ts
+ └── server.ts
+```
+
+---
+
+# Design Decisions
+
+- Unified User model using role field (`admin` / `student`)
+- Dynamic overdue calculation instead of storing redundant state
+- Zod validation before controller execution
+- Role-based middleware protection
+- Centralized error handling
+
+---
+
+# Submission Summary
+
+This project demonstrates:
+
+- Secure JWT authentication  
+- Role-based authorization  
+- Input validation with Zod  
+- MongoDB Atlas integration  
+- Clean layered architecture  
+- Production deployment  
+
+The API is fully functional and deployed in production.
