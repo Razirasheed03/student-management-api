@@ -315,7 +315,7 @@ JWT_SECRET=your_secret_key
 ### 1️⃣ Clone Repository
 
 ```bash
-git clone <your-repository-url>
+git clone https://github.com/Razirasheed03/student-management-api
 cd student-management-api
 ```
 
