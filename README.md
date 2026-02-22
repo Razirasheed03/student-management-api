@@ -348,6 +348,10 @@ npm start
 
 Deployed on **Render**.
 
+Note: This application is deployed on Render free tier.
+The first request after inactivity may take 15–20 seconds due to cold start.
+Subsequent requests respond immediately.
+
 **Build Command**
 
 ```bash
